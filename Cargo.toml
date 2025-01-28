@@ -11,5 +11,5 @@ starknet-types-core = { version = "0.1.6", default-features = false, features = 
 ] }
 starknet-types-rpc = { git = "https://github.com/neotheprogramist/types-rs.git", rev = "3ee4325a72481e526b7c4fa0592ad822a391658b" }
 tokio = { version = "1.39.3", features = ["full"] }
-openrpc-testgen = { path = "../starknet-hive/openrpc-testgen", features = [] }
+openrpc-testgen = { git = "https://github.com/neotheprogramist/starknet-hive.git" }
 rand = "0.8.5"
