@@ -112,11 +112,19 @@ async fn main() -> Result<(), OpenRpcTestGenError> {
 
     println!("balance {:?}", balance);
 
-    // Invoke with custom signature
-    let signature = vec![Felt::ONE, Felt::TWO];
+    // ----- Invoke with custom signature -----
 
-    let invoke_result_custom_signature = hive
-        .execute_v3(vec![increase_balance_call])
+    // Case with valid signature generated from hive.sign_execution
+    let prepared_execution_v3 = hive
+        .execute_v3(vec![increase_balance_call.clone()])
+        .prepare()
+        .await?;
+
+    let signature = hive
+        .sign_execution_v3(prepared_execution_v3.get_raw_execution().await, false)
+        .await?;
+
+    let invoke_result_custom_signature = prepared_execution_v3
         .send_with_custom_signature(signature)
         .await?;
 
@@ -126,5 +134,18 @@ async fn main() -> Result<(), OpenRpcTestGenError> {
     )
     .await?;
 
+    // Case with invalid mocked signature
+    let invalid_signature = vec![Felt::ONE, Felt::TWO, Felt::THREE];
+
+    let invoke_result_custom_signature = hive
+        .execute_v3(vec![increase_balance_call])
+        .send_with_custom_signature(invalid_signature)
+        .await?;
+
+    wait_for_sent_transaction(
+        invoke_result_custom_signature.transaction_hash,
+        &hive.account,
+    )
+    .await?;
     Ok(())
 }
